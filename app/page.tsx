@@ -1,103 +1,226 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Home() {
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <>
+      {/* Hero Section */}
+      <section className="hero-container">
+        <div className="left-hero">
+          <p id="h-s-text">IGNITE YOUR PASSION</p>
+          <h1>
+            Book Your Spot at the Hottest <span>Events</span> Around You
+          </h1>
+          <p>
+            Love concerts, workshops, or exclusive shows? Don't miss a beat!
+            Discover top events near you and grab your ticket before it's gone.
+          </p>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+          <Link href="/login">
+            <input
+              type="button"
+              className="Explore-btn"
+              value="Explore Events"
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+          </Link>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+
+        <div className="right-hero">
           <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+            src="/pre-book-img-1.png"
+            alt="Event booking preview"
+            width={500}
+            height={644}
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+
+          <div className="right-hero-cart-details">
+            <div className="hero-cart">
+              <div className="time-span">
+                <span>Aug</span>
+                <span className="span-date">15</span>
+              </div>
+
+              <div className="hero-cart-details">
+                <h3>Electric Groove Carnival</h3>
+                <h6>📍Coachella Valley</h6>
+              </div>
+            </div>
+
+            <Link href="/login">
+              <input
+                type="button"
+                className="pre-book-btn"
+                value="Pre-book Now"
+              />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Upcoming Events Section */}
+      <div id="cart-scroll">
+        <section>
+          <div className="upcomming-event">
+            <div className="upcomming-event-top">
+              <h3>Upcoming Events</h3>
+              <div className="filter-buttons">
+                <input type="button" value="Weekday" className="filter-btn1" />
+                <input type="button" value="Category" className="filter-btn2" />
+              </div>
+            </div>
+          </div>
+
+          {/* Event Cards Row 1 */}
+          <div className="event-cart">
+            {[1, 2, 3].map((item) => (
+              <div key={item} className="event-cart-singular">
+                <div className="event-cart-image">
+                  <Image
+                    src="/cart-img-1.jpg"
+                    alt="Blues on the Beach event"
+                    width={380}
+                    height={240}
+                  />
+                </div>
+
+                <div className="event-cart1">
+                  <div className="event-cart1-info">
+                    <div className="schedule-info">
+                      <div className="date-span">
+                        <p>OCT</p>
+                        <span>19</span>
+                      </div>
+                      <span>7PM</span>
+                    </div>
+
+                    <div className="event-cart-info">
+                      <h4>Blues on the Beach</h4>
+                      <h6>📍Santa Cruz Boardwalk</h6>
+
+                      <div className="price-info">
+                        <h4>$45 - $130</h4>
+                        <Link href={`/events/${item}`} passHref>
+                          <input
+                            type="button"
+                            value="Book Now"
+                            className="book-now-btn"
+                          />
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Event Cards Row 2 */}
+          <div className="event-cart">
+            {[1, 2, 3].map((item) => (
+              <div key={item} className="event-cart-singular">
+                <div className="event-cart-image">
+                  <Image
+                    src="/cart-img-1.jpg"
+                    alt="Blues on the Beach event"
+                    width={380}
+                    height={240}
+                  />
+                </div>
+
+                <div className="event-cart1">
+                  <div className="event-cart1-info">
+                    <div className="schedule-info">
+                      <div className="date-span">
+                        <p>OCT</p>
+                        <span>19</span>
+                      </div>
+                      <span>7PM</span>
+                    </div>
+
+                    <div className="event-cart-info">
+                      <h4>Blues on the Beach</h4>
+                      <h6>📍Santa Cruz Boardwalk</h6>
+
+                      <div className="price-info">
+                        <h4>$45 - $130</h4>
+                        <Link href="/login">
+                          <input
+                            type="button"
+                            value="Book Now"
+                            className="book-now-btn"
+                          />
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+
+      {/* News and Blogs */}
+      <section className="news-section" id="news-blog">
+        <div className="news-header-text">
+          <span>NEWS AND BLOGS</span>
+          <h3>Stay Updated with Our Event Insights</h3>
+        </div>
+        <div className="news-see-more-btn">
+          <input type="button" value="See More" />
+        </div>
+      </section>
+
+      {/* News Cart */}
+      <section>
+        <div className="news-cart">
+          {/* News Cart 1 */}
+          <div className="news-cart1">
+            <div className="news-img">
+              <Image
+                src="/right-img.jpg"
+                alt="Virtual events article"
+                width={526}
+                height={300}
+              />
+            </div>
+
+            <div className="news-cart-bottom">
+              <div className="news-cart-info">
+                <span>June 24, 2025</span>
+                <p>The Rise of Virtual Events: A New Era in Entertainment</p>
+              </div>
+
+              <div className="read-more-btn">
+                <input type="button" value="Read more" />
+              </div>
+            </div>
+          </div>
+
+          {/* News Cart 2 */}
+          <div className="news-cart1">
+            <div className="news-img">
+              <Image
+                src="/right-img.jpg"
+                alt="Virtual events article"
+                width={526}
+                height={300}
+              />
+            </div>
+
+            <div className="news-cart-bottom">
+              <div className="news-cart-info">
+                <span>June 24, 2025</span>
+                <p>The Rise of Virtual Events: A New Era in Entertainment</p>
+              </div>
+
+              <div className="read-more-btn">
+                <input type="button" value="Read more" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </>
   );
 }
