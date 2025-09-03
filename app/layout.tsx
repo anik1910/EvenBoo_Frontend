@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Header from "./Components/Header";
 import Footer from "./Components/Footer";
+import { Toaster } from "react-hot-toast";
 
 export const metadata: Metadata = {
   title: "EvenBoo | Book Your Event",
@@ -27,6 +28,7 @@ export default function RootLayout({
         {/* All page of mine is referring as children */}
         {children}
         <Footer />
+        <Toaster position="top-right" />
       </body>
     </html>
   );

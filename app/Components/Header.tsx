@@ -22,7 +22,7 @@ export default function Header() {
               <Link href="#news-blog">Blog</Link>
             </li>
             <li>
-              <Link href="/contact">Contact us</Link>
+              <Link href="/ContactUs">Contact us</Link>
             </li>
           </ul>
           <div className="nav-btn">
