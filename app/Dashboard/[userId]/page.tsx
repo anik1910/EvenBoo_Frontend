@@ -1,19 +1,38 @@
 "use client";
-import Link from "next/link";
-import UserHeader from "../Components/UserHeader";
-import UserFooter from "../Components/UserFooter";
 
-export default function Dashboard() {
-  const fname = "User"; // Replace with real user data
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+
+type UserInfo = { fullName: string };
+
+interface DashboardProps {
+  params: { userID: string };
+}
+
+export default function Dashboard({ params }: DashboardProps) {
+  const router = useRouter();
+  const [user, setUser] = useState<UserInfo | null>(null);
+
+  useEffect(() => {
+    fetch("http://localhost:8080/auth/me", { credentials: "include" })
+      .then(async (res) => {
+        if (!res.ok) throw new Error("Unauthorized");
+        const data = await res.json();
+        setUser({ fullName: data.fullName });
+      })
+      .catch(() => router.push("/login"));
+  }, [router]);
+
+  if (!user) return null;
 
   return (
     <>
-      <UserHeader fname={fname} />
       <div className="bg-[#14171c]">
-        <section className="container mx-auto flex gap-8 px-24 py-10 ">
-          {/* Main Content */}
+        <h2 className="text-2xl font-bold text-white mx-68 py-10">
+          Welcome, {user.fullName}!
+        </h2>
+        <section className="container mx-auto flex gap-8 px-24 ">
           <main className="w-3/4 mx-auto bg-[#b6e82e14] rounded-2xl p-6 text-white border-2 border-[#b6e82e]">
-            <h2 className="text-2xl font-bold mb-6">Upcoming Events</h2>
             <div className="flex flex-col gap-6">
               {[1, 2, 3, 4].map((event) => (
                 <article
@@ -61,7 +80,6 @@ export default function Dashboard() {
           </main>
         </section>
       </div>
-      <UserFooter />
     </>
   );
 }

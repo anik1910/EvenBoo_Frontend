@@ -44,17 +44,45 @@ export default function LoginPage() {
       setErrors({});
       setIsSubmitting(true);
 
-      // Simulate login delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const response = await fetch("http://localhost:8080/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          phoneOrEmail: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      let data: { message?: string; access_token?: string; userId?: string } =
+        {};
+      try {
+        data = await response.json();
+      } catch {
+        data = {};
+      }
+
+      if (!response.ok) {
+        showNotification("error", data.message || "Login failed");
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Optionally store access_token if needed or rely on cookie
+      localStorage.setItem("token", data.access_token || "");
 
       showNotification(
         "success",
         "Login successful! Redirecting to dashboard..."
       );
 
-      setTimeout(() => {
-        router.push("/Dashboard");
-      }, 2000);
+      // Redirect to /Dashboard/[userId]
+      if (data.userId) {
+        setTimeout(() => router.push(`/Dashboard/${data.userId}`), 2000);
+      } else {
+        // fallback redirect
+        setTimeout(() => router.push("/Dashboard"), 2000);
+      }
     } catch (err) {
       if (err instanceof z.ZodError) {
         const fieldErrors: { email?: string; password?: string } = {};
@@ -66,7 +94,7 @@ export default function LoginPage() {
         setErrors(fieldErrors);
         showNotification("error", "Please fix the errors and try again.");
       } else {
-        showNotification("error", "Login failed. Please try again.");
+        showNotification("error", "Unexpected error occurred.");
       }
     } finally {
       setIsSubmitting(false);

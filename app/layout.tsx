@@ -12,9 +12,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-
-  const noHeaderFooterPaths = ["/Dashboard"];
-  const showHeaderFooter = !noHeaderFooterPaths.includes(pathname);
+  const noHeaderFooterPaths = ["/dashboard", "/Profile"];
+  const showHeaderFooter = !noHeaderFooterPaths.some((path) =>
+    pathname?.toLowerCase().startsWith(path)
+  );
 
   return (
     <html lang="en">
