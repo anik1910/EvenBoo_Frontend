@@ -19,9 +19,11 @@ const signupSchema = z
     cpassword: z.string(),
     nid_file: z
       .any()
-      .refine((file) => file?.size <= 5000000, "File size must be under 5MB")
-      .optional()
-      .nullable(),
+      .refine((file) => file != null, "Please attach your NID file")
+      .refine(
+        (file) => !file || file.size <= 5000000,
+        "File size must be under 5MB"
+      ),
   })
   .refine((data) => data.password === data.cpassword, {
     message: "Passwords do not match",
@@ -127,34 +129,32 @@ export default function SignupPage() {
   };
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        width: "100vw",
-        height: "100vh",
-        backgroundColor: "#14171c",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        zIndex: 9999,
-      }}
-    >
+    <>
       <ToastContainer position="top-right" autoClose={5000} />
-      <form onSubmit={handleSubmit}>
-        <div className="signup-container">
-          <div className="signup-title">
-            <p>Register</p>
-          </div>
-          <div className="signup-subtitle">
-            <p>
-              Already have an account? <Link href="/login">Login</Link>
+      <div className="bg-[#14171c] flex justify-center items-center">
+        <form
+          onSubmit={handleSubmit}
+          className="bg-[#272a2e] rounded-[18px] p-7 w-[340px] mt-4"
+        >
+          <div className="text-center mb-5">
+            <p className="text-3xl font-bold text-white">Register</p>
+            <p className="mt-7 text-[#b6e82e] text-sm font-semibold">
+              Already have an account?{" "}
+              <Link href="/login" className="underline hover:text-white">
+                Login
+              </Link>
             </p>
           </div>
-          <div className="field-container">
+
+          <div className="flex flex-col gap-5">
+            {/* Full Name */}
             <div>
-              <label htmlFor="fname">Full Name</label>
+              <label
+                htmlFor="fname"
+                className="block text-white text-base mb-1"
+              >
+                Full Name
+              </label>
               <input
                 type="text"
                 id="fname"
@@ -162,13 +162,23 @@ export default function SignupPage() {
                 placeholder="Enter your Full Name"
                 value={formData.fname}
                 onChange={handleInputChange}
-                className={errors.fname ? "error" : ""}
+                className={`w-full px-3 py-2 rounded border ${
+                  errors.fname ? "border-red-500" : "border-[#b6e82e]"
+                } bg-[#b6e82e33] text-white placeholder:text-[#f0ecec] focus:outline-none focus:ring-2 focus:ring-[#b6e82e]`}
               />
-              {errors.fname && <p className="error-message">{errors.fname}</p>}
+              {errors.fname && (
+                <p className="text-red-500 text-sm mt-1">{errors.fname}</p>
+              )}
             </div>
 
+            {/* Email */}
             <div>
-              <label htmlFor="email">Email Address</label>
+              <label
+                htmlFor="email"
+                className="block text-white text-base mb-1"
+              >
+                Email Address
+              </label>
               <input
                 type="email"
                 id="email"
@@ -176,13 +186,23 @@ export default function SignupPage() {
                 placeholder="Enter your Email"
                 value={formData.email}
                 onChange={handleInputChange}
-                className={errors.email ? "error" : ""}
+                className={`w-full px-3 py-2 rounded border ${
+                  errors.email ? "border-red-500" : "border-[#b6e82e]"
+                } bg-[#b6e82e33] text-white placeholder:text-[#f0ecec] focus:outline-none focus:ring-2 focus:ring-[#b6e82e]`}
               />
-              {errors.email && <p className="error-message">{errors.email}</p>}
+              {errors.email && (
+                <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+              )}
             </div>
 
+            {/* Password */}
             <div>
-              <label htmlFor="password">Password</label>
+              <label
+                htmlFor="password"
+                className="block text-white text-base mb-1"
+              >
+                Password
+              </label>
               <input
                 type="password"
                 id="password"
@@ -190,15 +210,23 @@ export default function SignupPage() {
                 placeholder="Enter your Password"
                 value={formData.password}
                 onChange={handleInputChange}
-                className={errors.password ? "error" : ""}
+                className={`w-full px-3 py-2 rounded border ${
+                  errors.password ? "border-red-500" : "border-[#b6e82e]"
+                } bg-[#b6e82e33] text-white placeholder:text-[#f0ecec] focus:outline-none focus:ring-2 focus:ring-[#b6e82e]`}
               />
               {errors.password && (
-                <p className="error-message">{errors.password}</p>
+                <p className="text-red-500 text-sm mt-1">{errors.password}</p>
               )}
             </div>
 
+            {/* Confirm Password */}
             <div>
-              <label htmlFor="cpassword">Confirm Password</label>
+              <label
+                htmlFor="cpassword"
+                className="block text-white text-base mb-1"
+              >
+                Confirm Password
+              </label>
               <input
                 type="password"
                 id="cpassword"
@@ -206,40 +234,71 @@ export default function SignupPage() {
                 placeholder="Confirm your Password"
                 value={formData.cpassword}
                 onChange={handleInputChange}
-                className={errors.cpassword ? "error" : ""}
+                className={`w-full px-3 py-2 rounded border ${
+                  errors.cpassword ? "border-red-500" : "border-[#b6e82e]"
+                } bg-[#b6e82e33] text-white placeholder:text-[#f0ecec] focus:outline-none focus:ring-2 focus:ring-[#b6e82e]`}
               />
               {errors.cpassword && (
-                <p className="error-message">{errors.cpassword}</p>
+                <p className="text-red-500 text-sm mt-1">{errors.cpassword}</p>
               )}
             </div>
 
-            <div className="NID-attach">
-              <p>Please Attach your NID</p>
-              <input
-                type="file"
-                id="nid-file"
-                name="nid_file"
-                accept=".jpg, .jpeg, .png"
-                onChange={handleInputChange}
-                className={errors.nid_file ? "error" : ""}
-              />
+            {/* NID Attach */}
+            <div className="flex flex-col gap-2">
+              <p className="text-white font-semibold">Please Attach your NID</p>
+              <label
+                htmlFor="nid-file"
+                className="inline-flex items-center cursor-pointer px-4 py-2 bg-[#b6e82e33] text-white rounded-full hover:bg-[#b6e82e] hover:text-black transition"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="w-5 h-5 mr-2"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 4v16m8-8H4"
+                  />
+                </svg>
+                Upload NID
+                <input
+                  type="file"
+                  id="nid-file"
+                  name="nid_file"
+                  accept=".jpg, .jpeg, .png"
+                  className="hidden"
+                  onChange={handleInputChange}
+                />
+              </label>
+              {formData.nid_file && (
+                <span className="text-[#b6e82e] text-sm font-medium">
+                  {formData.nid_file.name}
+                </span>
+              )}
               {errors.nid_file && (
-                <p className="error-message">{errors.nid_file}</p>
+                <p className="text-red-500 text-sm mt-1">{errors.nid_file}</p>
               )}
             </div>
 
+            {/* Submit Button */}
             <div>
               <input
                 type="submit"
-                name="submit"
                 id="signup-btn"
+                name="submit"
                 value={isSubmitting ? "Signing Up..." : "Sign Up"}
                 disabled={isSubmitting}
+                className="w-full cursor-pointer bg-[#b6e82e] text-black font-semibold py-3 rounded-md hover:bg-[#a0d10a] disabled:opacity-60 disabled:cursor-not-allowed transition"
               />
             </div>
           </div>
-        </div>
-      </form>
-    </div>
+        </form>
+      </div>
+    </>
   );
 }

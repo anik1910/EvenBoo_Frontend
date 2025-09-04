@@ -1,227 +1,170 @@
 "use client";
 
-import React, { useState, useEffect, ChangeEvent, FormEvent } from "react";
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { toast } from "react-hot-toast";
+import ChangePasswordModal from "./ChangePassword"; // For modal, if you use it
 
-interface ProfileData {
-  fullname: string;
-  email: string;
-  phonenumber: string;
-  uaddress: string;
-  upassword: string;
-  myfile?: File | null;
-}
+const schema = z.object({
+  fullname: z.string().min(3, "Name required"),
+  phonenumber: z.string().min(10, "Phone required").max(15, "Invalid number"),
+  uaddress: z.string().min(3, "Address required"),
+  myfile: z.any().optional(),
+});
+
+type ProfileFormValues = z.infer<typeof schema>;
 
 const ProfileForm: React.FC = () => {
-  const [profileData, setProfileData] = useState<ProfileData>({
-    fullname: "",
-    email: "",
-    phonenumber: "",
-    uaddress: "",
-    upassword: "",
-    myfile: null,
-  });
-
-  const [imagePreview, setImagePreview] = useState<string | undefined>(
+  const [imagePreview, setImagePreview] = useState<string>(
     "/asset/image/udi.png"
   );
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
 
-  // Fetch profile data from API on component mount
-  useEffect(() => {
-    async function fetchProfile() {
-      try {
-        const response = await fetch("/api/profile");
-        if (response.ok) {
-          const data = await response.json();
-          setProfileData({
-            fullname: data.fullname || "",
-            email: data.email || "",
-            phonenumber: data.phonenumber || "",
-            uaddress: data.uaddress || "",
-            upassword: "", // Password typically not returned for security reasons
-            myfile: null,
-          });
-          // Optionally set image preview if you get image URL from API
-          if (data.imageUrl) setImagePreview(data.imageUrl);
-        }
-      } catch (err) {
-        console.error("Failed to load profile:", err);
-      }
-    }
-    fetchProfile();
-  }, []);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+  } = useForm<ProfileFormValues>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      fullname: "",
+      phonenumber: "",
+      uaddress: "",
+      myfile: undefined,
+    },
+  });
 
-  // Handle file input change and preview update
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files ? e.target.files[0] : null;
-    setProfileData((prev) => ({ ...prev, myfile: file }));
-    if (file) {
-      setImagePreview(URL.createObjectURL(file));
-    }
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    setValue("myfile", file as any);
+    if (file) setImagePreview(URL.createObjectURL(file));
   };
 
-  // Handle input changes
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setProfileData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-    setErrors((prev) => ({
-      ...prev,
-      [name]: "",
-    }));
-  };
-
-  // Basic client-side validation example (expand as needed)
-  const validate = (): boolean => {
-    const newErrors: Record<string, string> = {};
-    if (!profileData.fullname.trim())
-      newErrors.fullname = "Full Name is required";
-    if (!profileData.phonenumber.trim())
-      newErrors.phonenumber = "Phone Number is required";
-    if (!profileData.uaddress.trim())
-      newErrors.uaddress = "Address is required";
-    if (!profileData.upassword.trim())
-      newErrors.upassword = "Password is required";
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  // Handle form submission
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-
-    if (!validate()) {
-      return;
-    }
-
-    const formDataToSend = new FormData();
-    formDataToSend.append("fullname", profileData.fullname);
-    formDataToSend.append("phonenumber", profileData.phonenumber);
-    formDataToSend.append("uaddress", profileData.uaddress);
-    formDataToSend.append("upassword", profileData.upassword);
-    if (profileData.myfile) {
-      formDataToSend.append("myfile", profileData.myfile);
-    }
-
+  const onSubmit = async (data: ProfileFormValues) => {
     try {
-      const response = await fetch("/api/profile", {
-        method: "POST",
-        body: formDataToSend,
-      });
-      if (response.ok) {
-        alert("Profile updated successfully!");
-      } else {
-        alert("Failed to update profile.");
-      }
-    } catch (err) {
-      alert("An error occurred while submitting the form.");
-      console.error(err);
+      // Place your API call here
+      toast.success("Profile updated!");
+    } catch {
+      toast.error("Update failed");
     }
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      encType="multipart/form-data"
-      noValidate
-      style={{ maxWidth: "400px", margin: "auto" }}
-    >
-      <div>
-        <img
-          id="preview"
-          src={imagePreview}
-          alt="Profile"
-          className="profile-pic"
-          style={{ width: "150px", borderRadius: "50%" }}
-        />
-        <br />
-        <input
-          type="file"
-          name="myfile"
-          accept="image/*"
-          onChange={handleFileChange}
-        />
-      </div>
-
-      <div>
-        <label>Full Name:</label>
-        <br />
-        <input
-          type="text"
-          id="pmfullName"
-          name="fullname"
-          value={profileData.fullname}
-          onChange={handleChange}
-        />
-        {errors.fullname && (
-          <div style={{ color: "red" }}>{errors.fullname}</div>
-        )}
-      </div>
-
-      <div>
-        <label>Email:</label>
-        <br />
-        <input
-          type="email"
-          id="pmemail"
-          name="email"
-          value={profileData.email}
-          disabled
-        />
-      </div>
-
-      <div>
-        <label>Phone Number:</label>
-        <br />
-        <input
-          type="text"
-          id="pmphone"
-          name="phonenumber"
-          value={profileData.phonenumber}
-          onChange={handleChange}
-        />
-        {errors.phonenumber && (
-          <div style={{ color: "red" }}>{errors.phonenumber}</div>
-        )}
-      </div>
-
-      <div>
-        <label>Address:</label>
-        <br />
-        <input
-          type="text"
-          id="pmaddress"
-          name="uaddress"
-          value={profileData.uaddress}
-          onChange={handleChange}
-        />
-        {errors.uaddress && (
-          <div style={{ color: "red" }}>{errors.uaddress}</div>
-        )}
-      </div>
-
-      <div>
-        <label>Password:</label>
-        <br />
-        <input
-          type="password"
-          id="pmpassword"
-          name="upassword"
-          value={profileData.upassword}
-          onChange={handleChange}
-        />
-        {errors.upassword && (
-          <div style={{ color: "red" }}>{errors.upassword}</div>
-        )}
-      </div>
-
-      <div>
-        <input type="submit" id="pmsubmit" value="Submit" />
-      </div>
-    </form>
+    <div className="min-h-screen flex flex-col items-center bg-[#14171c] font-poppins">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="bg-[#1f2229] max-w-md w-full mx-auto mt-10 rounded-xl shadow-lg p-8 flex flex-col gap-6"
+        noValidate
+        encType="multipart/form-data"
+      >
+        <div className="flex flex-col items-center mb-4">
+          <img
+            src={imagePreview}
+            alt="Profile"
+            className="w-36 h-36 object-cover rounded-full border-[4px] border-[#b6e82e] shadow"
+          />
+          <input
+            type="file"
+            accept="image/*"
+            {...register("myfile")}
+            onChange={handleFileChange}
+            className="mt-2 block text-xs w-full"
+          />
+        </div>
+        <div>
+          <label
+            htmlFor="pmfullName"
+            className="block text-white text-[15px] mb-1"
+          >
+            Full Name
+          </label>
+          <input
+            id="pmfullName"
+            {...register("fullname")}
+            placeholder="Your full name"
+            className="w-full px-3 py-2 rounded border border-[#b6e82e] bg-[#b6e82e33] text-white placeholder:text-[#f0ecec] focus:outline-none focus:ring-2 focus:ring-[#b6e82e]"
+          />
+          {errors.fullname && (
+            <span className="text-red-500 text-xs">
+              {errors.fullname.message}
+            </span>
+          )}
+        </div>
+        <div>
+          <label
+            htmlFor="pmemail"
+            className="block text-white text-[15px] mb-1"
+          >
+            Email
+          </label>
+          <input
+            id="pmemail"
+            type="email"
+            disabled
+            value="demo@email.com"
+            className="w-full px-3 py-2 rounded border border-[#b6e82e] bg-gray-300 text-gray-700 opacity-80 cursor-not-allowed"
+          />
+        </div>
+        <div>
+          <label
+            htmlFor="pmphone"
+            className="block text-white text-[15px] mb-1"
+          >
+            Phone Number
+          </label>
+          <input
+            id="pmphone"
+            {...register("phonenumber")}
+            placeholder="01XXXXXXXXX"
+            className="w-full px-3 py-2 rounded border border-[#b6e82e] bg-[#b6e82e33] text-white placeholder:text-[#f0ecec] focus:outline-none focus:ring-2 focus:ring-[#b6e82e]"
+          />
+          {errors.phonenumber && (
+            <span className="text-red-500 text-xs">
+              {errors.phonenumber.message}
+            </span>
+          )}
+        </div>
+        <div>
+          <label
+            htmlFor="pmaddress"
+            className="block text-white text-[15px] mb-1"
+          >
+            Address
+          </label>
+          <input
+            id="pmaddress"
+            {...register("uaddress")}
+            placeholder="Your address"
+            className="w-full px-3 py-2 rounded border border-[#b6e82e] bg-[#b6e82e33] text-white placeholder:text-[#f0ecec] focus:outline-none focus:ring-2 focus:ring-[#b6e82e]"
+          />
+          {errors.uaddress && (
+            <span className="text-red-500 text-xs">
+              {errors.uaddress.message}
+            </span>
+          )}
+        </div>
+        <div className="flex gap-4 mt-4">
+          <button
+            type="button"
+            onClick={() => setShowPasswordModal(true)}
+            className="w-1/2 py-2 bg-[#b6e82e] text-black rounded font-bold hover:bg-[#d0ff40] transition"
+          >
+            Change Password
+          </button>
+          <input
+            id="pmsubmit"
+            type="submit"
+            value="Save Changes"
+            className="w-1/2 py-2 bg-[#b6e82e] text-black rounded font-bold hover:bg-[#d0ff40] cursor-pointer transition"
+          />
+        </div>
+        {/* Uncomment this when your modal is ready */}
+        {/* {showPasswordModal && <ChangePasswordModal onClose={() => setShowPasswordModal(false)} />} */}
+      </form>
+    </div>
   );
 };
 

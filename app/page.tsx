@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
   return (
@@ -15,6 +16,8 @@ export default function Home() {
             Love concerts, workshops, or exclusive shows? Don't miss a beat!
             Discover top events near you and grab your ticket before it's gone.
           </p>
+
+          <Button>Hello</Button>
 
           <Link href="/login">
             <input
