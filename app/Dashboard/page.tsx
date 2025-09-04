@@ -1,136 +1,67 @@
 "use client";
 import Link from "next/link";
+import UserHeader from "../Components/UserHeader";
+import UserFooter from "../Components/UserFooter";
 
 export default function Dashboard() {
-  const fname = "User"; // Placeholder, replace with auth logic if needed
+  const fname = "User"; // Replace with real user data
 
   return (
     <>
-      <header>
-        <nav>
-          <div className="nav-container">
-            <div className="nav-logo">
-              <Link href="/landing_page_feature/landing_page.html">
-                EvenBoo
-              </Link>
-            </div>
-            <div className="right-nav">
-              <div className="user-info">
-                <span>Welcome</span>
-                <Link href="/Profile_Management_feature/profilemanagement.php">
-                  <span className="user">{fname}</span>
-                </Link>
-              </div>
-              <div className="nav-icon">
-                <Link href="#">
-                  <i className="fa-solid fa-bell"></i>
-                </Link>
-                <Link href="#">
-                  <i className="fa-solid fa-gear"></i>
-                </Link>
-                <Link href="/controller/logout.php">
-                  <i className="fa-solid fa-right-from-bracket"></i>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </nav>
-      </header>
-
-      <section className="profile-content">
-        <div className="left-filter">
-          <div className="filter-top">
-            <span>Filter</span>
-            <input type="button" value="Reset Filter" />
-          </div>
-          <div className="filter">
-            <div className="filter-category">
-              <p>Category</p>
-              <input type="checkbox" id="late-night-party" />
-              <label htmlFor="late-night-party">Late Night Party</label>
-              <br />
-              <input type="checkbox" id="late-night-concert" />
-              <label htmlFor="late-night-concert">Late Night Concert</label>
-              <br />
-              <input type="checkbox" id="day-long-concert" />
-              <label htmlFor="day-long-concert">Day Long Concert</label>
-              <br />
-              <input type="checkbox" id="reunion" />
-              <label htmlFor="reunion">Reunion</label>
-              <br />
-              <input type="checkbox" id="conference" />
-              <label htmlFor="conference">Conference</label>
-              <br />
-              <hr />
-            </div>
-            <div className="weekday">
-              <p>Weekday</p>
-              {[
-                "Saturday",
-                "Sunday",
-                "Monday",
-                "Tuesday",
-                "Wednesday",
-                "Thursday",
-                "Friday",
-              ].map((day) => (
-                <div key={day}>
-                  <input type="checkbox" id={day} />
-                  <label htmlFor={day}>{day}</label>
-                  <br />
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="right_content">
-          <span className="r-title">Upcoming Events</span>
-          <div className="filtered-event">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="event-card-horizontal">
-                <div className="event-card-image">
-                  <img src="/asset/image/cart-img-1.jpg" alt="Event Image" />
-                </div>
-                <div className="event-card-content">
-                  <div className="event-card-content-inner">
-                    <div className="event-card-schedule">
-                      <div className="event-date">
-                        <p>OCT</p>
-                        <span>19</span>
+      <UserHeader fname={fname} />
+      <div className="bg-[#14171c]">
+        <section className="container mx-auto flex gap-8 px-24 py-10 ">
+          {/* Main Content */}
+          <main className="w-3/4 mx-auto bg-[#b6e82e14] rounded-2xl p-6 text-white border-2 border-[#b6e82e]">
+            <h2 className="text-2xl font-bold mb-6">Upcoming Events</h2>
+            <div className="flex flex-col gap-6">
+              {[1, 2, 3, 4].map((event) => (
+                <article
+                  key={event}
+                  className="event-card-horizontal flex bg-[#0b0b0b33] rounded-xl overflow-hidden shadow-lg"
+                >
+                  <div className="w-2/5 overflow-hidden">
+                    <img
+                      src="/cart-img-1.jpg"
+                      alt="Event Image"
+                      className="object-cover w-full h-full rounded-l-xl"
+                    />
+                  </div>
+                  <div className="w-3/5 p-4 flex flex-col justify-between">
+                    <div className="flex gap-8">
+                      <div className="event-schedule flex flex-col items-center text-[#b6e82e] font-semibold">
+                        <div className="text-lg">OCT</div>
+                        <div className="text-3xl">19</div>
+                        <div className="text-base text-white">7PM</div>
                       </div>
-                      <span>7PM</span>
+                      <div className="flex flex-col">
+                        <h3 className="text-xl font-bold">
+                          Blues on the Beach
+                        </h3>
+                        <p className="text-sm text-[#b6e82e]">
+                          📍Santa Cruz Boardwalk
+                        </p>
+                      </div>
                     </div>
-                    <div className="event-details">
-                      <h4>Blues on the Beach</h4>
-                      <h6>📍Santa Cruz Boardwalk</h6>
-                      <div className="event-price">
-                        <h4>$45 - $130</h4>
-                        <input
-                          type="button"
-                          value="Book Now"
-                          className="book-now-button"
-                          onClick={() =>
-                            (window.location.href =
-                              "/Venue_Details_feature/venuedetails.html")
-                          }
-                        />
-                      </div>
+                    <div className="flex items-center justify-between mt-4">
+                      <div className="text-[#b6e82e] text-lg">$45 - $130</div>
+                      <button
+                        onClick={() =>
+                          (window.location.href = "/venuedetails.html")
+                        }
+                        className="book-now-button bg-[#b6e82e14] border border-[#b6e82e] text-[#b6e82e] rounded-lg px-4 py-2 hover:bg-[#b6e82e] hover:text-black transition text-sm font-semibold"
+                      >
+                        Book Now
+                      </button>
                     </div>
                   </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <link rel="stylesheet" href="/asset/CSS/style.css" />
-      <link
-        rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-      />
-      <script src="/asset/Javascript/index.js"></script>
+                </article>
+              ))}
+            </div>
+          </main>
+        </section>
+      </div>
+      <UserFooter />
     </>
   );
 }
