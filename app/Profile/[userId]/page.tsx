@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
 import ChangePasswordModal from "./ChangePassword";
 import { FaEdit, FaSave, FaTimes } from "react-icons/fa";
+import axios from "axios";
 
 export default function Profile({ params }: { params: { userId: string } }) {
   const router = useRouter();
@@ -44,12 +45,10 @@ export default function Profile({ params }: { params: { userId: string } }) {
   // Load profile data
   async function loadProfile() {
     try {
-      const res = await fetch("http://localhost:8080/profile", {
-        credentials: "include",
+      const res = await axios.get("http://localhost:8080/profile", {
+        withCredentials: true,
       });
-      if (!res.ok) throw new Error("Unauthorized");
-      const data = await res.json();
-      const user = data.Profile_Info || {};
+      const user = res.data.Profile_Info || {};
       setProfile({
         fullName: user.fullName || "",
         email: user.email || "",
@@ -61,7 +60,7 @@ export default function Profile({ params }: { params: { userId: string } }) {
         phonenumber: user.phone || "",
         myfile: null,
       });
-    } catch {
+    } catch (error) {
       router.push("/login");
     }
   }
@@ -86,22 +85,16 @@ export default function Profile({ params }: { params: { userId: string } }) {
     body[field === "fullname" ? "fullName" : "phone"] = value;
 
     try {
-      const res = await fetch("http://localhost:8080/profile", {
-        method: "PATCH",
+      const res = await axios.patch("http://localhost:8080/profile", body, {
+        withCredentials: true,
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(body),
       });
-      if (res.ok) {
-        toast.success(
-          `${field === "fullname" ? "Full name" : "Phone number"} updated`
-        );
-        setEditingField(null);
-        await loadProfile(); // refresh data
-      } else {
-        toast.error("Update failed");
-      }
-    } catch {
+      toast.success(
+        `${field === "fullname" ? "Full name" : "Phone number"} updated`
+      );
+      setEditingField(null);
+      await loadProfile();
+    } catch (error) {
       toast.error("Update failed");
     }
   }
@@ -123,18 +116,17 @@ export default function Profile({ params }: { params: { userId: string } }) {
     formDataToSend.append("profilePic", formData.myfile[0]);
 
     try {
-      const res = await fetch("http://localhost:8080/profile", {
-        method: "PATCH",
-        credentials: "include",
-        body: formDataToSend,
-      });
-      if (res.ok) {
-        toast.success("Profile picture updated");
-        loadProfile();
-      } else {
-        toast.error("Profile picture update failed");
-      }
-    } catch {
+      const res = await axios.patch(
+        "http://localhost:8080/profile",
+        formDataToSend,
+        {
+          withCredentials: true,
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+      toast.success("Profile picture updated");
+      await loadProfile();
+    } catch (error) {
       toast.error("Profile picture update failed");
     }
   }
@@ -142,17 +134,12 @@ export default function Profile({ params }: { params: { userId: string } }) {
   async function handleDeleteAccount() {
     if (!confirm("Are you sure you want to delete your account?")) return;
     try {
-      const res = await fetch("http://localhost:8080/profile", {
-        method: "DELETE",
-        credentials: "include",
+      const res = await axios.delete("http://localhost:8080/profile", {
+        withCredentials: true,
       });
-      if (res.ok) {
-        toast.success("Account deleted");
-        router.push("/login");
-      } else {
-        toast.error("Could not delete account");
-      }
-    } catch {
+      toast.success("Account deleted");
+      router.push("/login");
+    } catch (error) {
       toast.error("Could not delete account");
     }
   }
@@ -168,8 +155,6 @@ export default function Profile({ params }: { params: { userId: string } }) {
         <h2 className="mb-6 text-center text-2xl font-semibold text-white">
           Profile Information
         </h2>
-
-        {/* Profile Picture Section skipped */}
 
         <div>
           <label
@@ -278,8 +263,6 @@ export default function Profile({ params }: { params: { userId: string } }) {
           >
             Change Password
           </button>
-
-          {/* Remove Save All button as per request */}
         </div>
 
         <button
@@ -296,26 +279,24 @@ export default function Profile({ params }: { params: { userId: string } }) {
           onClose={() => setShowPasswordModal(false)}
           onChangePassword={async (oldPass: string, newPass: string) => {
             try {
-              const res = await fetch(
+              const res = await axios.put(
                 "http://localhost:8080/profile/change-password",
                 {
-                  method: "PUT",
+                  oldPassword: oldPass,
+                  newPassword: newPass,
+                },
+                {
+                  withCredentials: true,
                   headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({
-                    oldPassword: oldPass,
-                    newPassword: newPass,
-                  }),
-                  credentials: "include",
                 }
               );
-              if (res.ok) {
-                toast.success("Password changed");
-                setShowPasswordModal(false);
-              } else {
-                toast.error("Password change failed");
-              }
-            } catch {
-              toast.error("Password change error");
+
+              toast.success("Password changed");
+              setShowPasswordModal(false);
+            } catch (error: any) {
+              const errorMsg =
+                error.response?.data?.message || "Password change failed";
+              toast.error(errorMsg);
             }
           }}
         />

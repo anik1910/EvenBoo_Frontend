@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 
 type UserInfo = { fullName: string };
 
@@ -14,13 +15,17 @@ export default function Dashboard({ params }: DashboardProps) {
   const [user, setUser] = useState<UserInfo | null>(null);
 
   useEffect(() => {
-    fetch("http://localhost:8080/auth/me", { credentials: "include" })
-      .then(async (res) => {
-        if (!res.ok) throw new Error("Unauthorized");
-        const data = await res.json();
-        setUser({ fullName: data.fullName });
-      })
-      .catch(() => router.push("/login"));
+    async function fetchUser() {
+      try {
+        const response = await axios.get("http://localhost:8080/auth/me", {
+          withCredentials: true,
+        });
+        setUser({ fullName: response.data.fullName });
+      } catch (error) {
+        router.push("/login");
+      }
+    }
+    fetchUser();
   }, [router]);
 
   if (!user) return null;
@@ -46,19 +51,19 @@ export default function Dashboard({ params }: DashboardProps) {
                       className="object-cover w-full h-full rounded-l-xl"
                     />
                   </div>
-                  <div className="w-3/5 p-4 flex flex-col justify-between">
+                  <div className="w-3/5 p-6 flex flex-col justify-between">
                     <div className="flex gap-8">
                       <div className="event-schedule flex flex-col items-center text-[#b6e82e] font-semibold">
                         <div className="text-lg">OCT</div>
                         <div className="text-3xl">19</div>
-                        <div className="text-base text-white">7PM</div>
+                        <div className="text-base">7PM</div>
                       </div>
-                      <div className="flex flex-col">
+                      <div>
                         <h3 className="text-xl font-bold">
                           Blues on the Beach
                         </h3>
                         <p className="text-sm text-[#b6e82e]">
-                          📍Santa Cruz Boardwalk
+                          📍 Santa Cruz Boardwalk
                         </p>
                       </div>
                     </div>

@@ -6,6 +6,7 @@ import { z } from "zod";
 import { useRouter } from "next/navigation";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import axios from "axios";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -15,17 +16,15 @@ const loginSchema = z.object({
 export default function LoginPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({ email: "", password: "" });
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>(
-    {}
-  );
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = React.useState<{
+    email?: string;
+    password?: string;
+  }>({});
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const showNotification = (type: "success" | "error", message: string) => {
-    if (type === "success") {
-      toast.success(message);
-    } else {
-      toast.error(message);
-    }
+    if (type === "success") toast.success(message);
+    else toast.error(message);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -39,57 +38,47 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     try {
       loginSchema.parse(formData);
       setErrors({});
       setIsSubmitting(true);
 
-      const response = await fetch("http://localhost:8080/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
+      const response = await axios.post(
+        "http://localhost:8080/auth/login",
+        {
           phoneOrEmail: formData.email,
           password: formData.password,
-        }),
-      });
-
-      let data: { message?: string; access_token?: string; userId?: string } =
-        {};
-      try {
-        data = await response.json();
-      } catch {
-        data = {};
-      }
-
-      if (!response.ok) {
-        showNotification("error", data.message || "Login failed");
-        setIsSubmitting(false);
-        return;
-      }
-
-      // Optionally store access_token if needed or rely on cookie
-      localStorage.setItem("token", data.access_token || "");
-
-      showNotification(
-        "success",
-        "Login successful! Redirecting to dashboard..."
+        },
+        { withCredentials: true }
       );
 
-      // Redirect to /Dashboard/[userId]
+      const data = response.data;
+
+      // Save token if provided
+      if (data.access_token) {
+        localStorage.setItem("token", data.access_token);
+      }
+
+      showNotification("success", "Login successful! Redirecting...");
+
       if (data.userId) {
         setTimeout(() => router.push(`/Dashboard/${data.userId}`), 2000);
       } else {
-        // fallback redirect
         setTimeout(() => router.push("/Dashboard"), 2000);
       }
-    } catch (err) {
-      if (err instanceof z.ZodError) {
+    } catch (error: any) {
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        showNotification("error", error.response.data.message);
+      } else if (error instanceof z.ZodError) {
         const fieldErrors: { email?: string; password?: string } = {};
-        err.issues.forEach((issue) => {
-          if (issue.path[0]) {
+        error.issues.forEach((issue) => {
+          if (issue.path[0])
             fieldErrors[issue.path[0] as "email" | "password"] = issue.message;
-          }
         });
         setErrors(fieldErrors);
         showNotification("error", "Please fix the errors and try again.");
@@ -141,7 +130,7 @@ export default function LoginPage() {
             type="password"
             id="password"
             name="password"
-            placeholder="Enter your password"
+            placeholder="Enter your Password"
             value={formData.password}
             onChange={handleInputChange}
             className={`w-full p-2 mb-2 rounded border ${

@@ -6,8 +6,8 @@ import { z } from "zod";
 import { useRouter } from "next/navigation";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import axios from "axios";
 
-// Zod schema including phone validation and password confirmation
 const signupSchema = z
   .object({
     fname: z
@@ -29,7 +29,7 @@ const signupSchema = z
       .any()
       .refine((file) => file != null, "Please attach your NID file")
       .refine(
-        (file) => !file || file.size <= 5000000,
+        (file) => !file || file.size <= 5_000_000,
         "File size must be under 5MB"
       ),
   })
@@ -108,33 +108,23 @@ export default function SignupPage() {
         formDataToSend.append("nid", formData.nid_file);
       }
 
-      const response = await fetch("http://localhost:8080/auth/register", {
-        method: "POST",
-        body: formDataToSend,
-      });
-
-      let data: { message?: string } = {};
-      try {
-        data = await response.json();
-        console.log("Backend response:", data);
-      } catch (parseError) {
-        console.warn("Failed to parse JSON:", parseError);
-        data = {};
-      }
-
-      if (!response.ok) {
-        showNotification("error", data.message || "Signup failed");
-        setIsSubmitting(false);
-        return;
-      }
+      const response = await axios.post(
+        "http://localhost:8080/auth/register",
+        formDataToSend,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
 
       showNotification(
         "success",
         "Registration successful! Redirecting to login..."
       );
       setTimeout(() => router.push("/login"), 2000);
-    } catch (err) {
-      if (err instanceof z.ZodError) {
+    } catch (err: any) {
+      if (err.response && err.response.data && err.response.data.message) {
+        showNotification("error", err.response.data.message);
+      } else if (err instanceof z.ZodError) {
         const fieldErrors: FormErrors = {};
         err.issues.forEach((issue) => {
           if (issue.path[0]) {
@@ -143,16 +133,12 @@ export default function SignupPage() {
         });
         setErrors(fieldErrors);
         showNotification("error", "Please fix the errors and try again.");
-      } else if (err instanceof TypeError) {
-        if (!navigator.onLine) {
-          showNotification("error", "Network error or offline.");
-        } else {
-          console.error("Fetch or parsing error:", err);
-          showNotification("error", "Unexpected response from the server.");
-        }
+      } else if (err.message === "Network Error") {
+        showNotification("error", "Network error or offline.");
       } else {
         showNotification("error", "Unexpected error occurred.");
       }
+    } finally {
       setIsSubmitting(false);
     }
   };

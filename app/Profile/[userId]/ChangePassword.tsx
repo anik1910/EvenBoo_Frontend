@@ -29,7 +29,6 @@ const ChangePasswordModal: React.FC<Props> = ({
   const onSubmit = async (data: FormValues) => {
     try {
       await onChangePassword(data.oldPassword, data.newPassword);
-      toast.success("Password changed!");
       onClose();
     } catch (error) {
       toast.error("Password change failed");
