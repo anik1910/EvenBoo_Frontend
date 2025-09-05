@@ -10,23 +10,28 @@ const schema = z.object({
 });
 
 type FormValues = z.infer<typeof schema>;
+
 interface Props {
   onClose: () => void;
+  onChangePassword: (oldPass: string, newPass: string) => Promise<void>;
 }
 
-const ChangePasswordModal: React.FC<Props> = ({ onClose }) => {
+const ChangePasswordModal: React.FC<Props> = ({
+  onClose,
+  onChangePassword,
+}) => {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<FormValues>({ resolver: zodResolver(schema) });
 
   const onSubmit = async (data: FormValues) => {
     try {
-      // Handle password change (API code here)
+      await onChangePassword(data.oldPassword, data.newPassword);
       toast.success("Password changed!");
       onClose();
-    } catch {
+    } catch (error) {
       toast.error("Password change failed");
     }
   };
@@ -37,48 +42,59 @@ const ChangePasswordModal: React.FC<Props> = ({ onClose }) => {
         onSubmit={handleSubmit(onSubmit)}
         className="bg-[#272a2e] p-8 rounded-lg shadow-lg w-full max-w-md"
       >
-        <h2 className="text-2xl font-bold text-[#b6e82e] mb-6 text-center">
+        <h2 className="text-2xl font-bold text-white mb-6 text-center">
           Change Password
         </h2>
-        <div className="mb-4">
-          <label className="block text-[#b6e82e] mb-1">Old Password</label>
+
+        <div className="mb-6">
+          <label className="block text-white mb-2">Old Password</label>
           <input
             type="password"
-            className={`w-full p-2 rounded ${
+            className={`w-full p-2 rounded border ${
               errors.oldPassword ? "border-red-500" : "border-[#b6e82e]"
-            }`}
+            } bg-[#272a2e] text-white`}
             {...register("oldPassword")}
+            disabled={isSubmitting}
           />
           {errors.oldPassword && (
-            <span className="text-red-500">{errors.oldPassword.message}</span>
+            <span className="text-red-500 text-sm">
+              {errors.oldPassword.message}
+            </span>
           )}
         </div>
-        <div className="mb-4">
-          <label className="block text-[#b6e82e] mb-1">New Password</label>
+
+        <div className="mb-6">
+          <label className="block text-white mb-2">New Password</label>
           <input
             type="password"
-            className={`w-full p-2 rounded ${
+            className={`w-full p-2 rounded border ${
               errors.newPassword ? "border-red-500" : "border-[#b6e82e]"
-            }`}
+            } bg-[#272a2e] text-white`}
             {...register("newPassword")}
+            disabled={isSubmitting}
           />
           {errors.newPassword && (
-            <span className="text-red-500">{errors.newPassword.message}</span>
+            <span className="text-red-500 text-sm">
+              {errors.newPassword.message}
+            </span>
           )}
         </div>
+
         <div className="flex gap-4 mt-6">
           <button
             type="button"
             onClick={onClose}
+            disabled={isSubmitting}
             className="bg-gray-400 text-white py-2 px-4 rounded w-1/2"
           >
             Cancel
           </button>
           <button
             type="submit"
-            className="bg-[#b6e82e] text-black py-2 px-4 rounded w-1/2 font-bold hover:bg-white"
+            disabled={isSubmitting}
+            className="bg-[#b6e82e] text-black py-2 px-4 rounded w-1/2 hover:bg-white disabled:opacity-60"
           >
-            Change
+            {isSubmitting ? "Changing..." : "Change"}
           </button>
         </div>
       </form>

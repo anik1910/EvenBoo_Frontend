@@ -35,7 +35,7 @@ export default function UserHeader() {
             <Link href="#">
               <i className="fas fa-bell hover:text-[#b6e82e] cursor-pointer"></i>
             </Link>
-            <Link href="/Profile">
+            <Link href="/Profile\[userId]">
               <i className="fas fa-gear hover:text-[#b6e82e] cursor-pointer"></i>
             </Link>
             <a href="#" onClick={handleLogout}>
