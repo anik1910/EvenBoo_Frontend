@@ -1,21 +1,23 @@
 module.exports = {
-  content: ["./app/**/*.{js,ts,jsx,tsx}", "./components/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
+      colors: {
+        neon: "#b6e82e",
+        neonDark: "#a0d10a",
+        bgDark: "#14171c",
+        cardDark: "#272a2e",
+        lightGray: "#b9b9b9",
+        borderLight: "#b6e82e14",
+        cardBg: "#0b0b0b1e",
+      },
       fontFamily: {
         poppins: ["Poppins", "sans-serif"],
       },
-      colors: {
-        "brand-green": "#b6e82e",
-        "bg-dark": "#14171c",
-        "bg-darker": "#272a2e",
-        "text-muted": "#b6e82e14",
-      },
-      borderRadius: {
-        xl: "1.875rem", // 30px
+      spacing: {
+        98: "24.5rem", // 392px approx (gap-98px)
+        140: "35rem", // 560px approx (margin 140px)
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
-  darkMode: "class",
+  plugins: [],
 };
