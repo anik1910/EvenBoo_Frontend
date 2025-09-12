@@ -5,6 +5,8 @@ import Header from "./Components/Header";
 import Footer from "./Components/Footer";
 import { Toaster } from "react-hot-toast";
 import { usePathname } from "next/navigation";
+import * as PusherPushNotifications from "@pusher/push-notifications-web";
+import { useEffect } from "react";
 
 export default function RootLayout({
   children,
@@ -16,6 +18,17 @@ export default function RootLayout({
   const showHeaderFooter = !noHeaderFooterPaths.some((path) =>
     pathname?.toLowerCase().startsWith(path)
   );
+
+  useEffect(() => {
+    const beamsClient = new PusherPushNotifications.Client({
+      instanceId: "caf13007-67c2-4abd-b54a-6e91430a4c98",
+    });
+
+    beamsClient
+      .start()
+      .then(() => beamsClient.addDeviceInterest("hello"))
+      .catch((error) => console.error("Beams initialization failed:", error));
+  }, []);
 
   return (
     <html lang="en">

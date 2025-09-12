@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
+import { Client } from "@pusher/push-notifications-web";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -21,10 +22,93 @@ export default function LoginPage() {
     password?: string;
   }>({});
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [beamsClient, setBeamsClient] = useState<Client | null>(null);
 
   const showNotification = (type: "success" | "error", message: string) => {
     if (type === "success") toast.success(message);
     else toast.error(message);
+  };
+
+  // Pusher Beams
+  useEffect(() => {
+    const initializePusherBeams = async () => {
+      if (typeof window === "undefined") return;
+
+      try {
+        const instanceId = process.env.NEXT_PUBLIC_PUSHER_BEAMS_INSTANCE_ID;
+        if (!instanceId) {
+          console.error("Pusher Beams Instance ID not found");
+          return;
+        }
+
+        const client = new Client({ instanceId });
+        await client.start();
+        setBeamsClient(client);
+        console.log("Pusher Beams initialized successfully");
+      } catch (error) {
+        console.error("Failed to initialize Pusher Beams:", error);
+      }
+    };
+
+    initializePusherBeams();
+
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker
+        .register("/sw.js")
+        .then((registration) => {
+          console.log("SW registered: ", registration);
+        })
+        .catch((registrationError) => {
+          console.log("SW registration failed: ", registrationError);
+        });
+    }
+  }, []);
+
+  const enableNotifications = async (userId: string) => {
+    let client = beamsClient;
+
+    if (!client) {
+      const instanceId = process.env.NEXT_PUBLIC_PUSHER_BEAMS_INSTANCE_ID;
+
+      if (!instanceId) {
+        console.error("Pusher Beams Instance ID not found");
+        return false;
+      }
+
+      client = new Client({ instanceId });
+      try {
+        await client.start();
+        setBeamsClient(client);
+        console.log(
+          "Pusher Beams initialized successfully inside enableNotifications"
+        );
+      } catch (error) {
+        console.error("Failed to initialize Pusher Beams:", error);
+        return false;
+      }
+    }
+
+    try {
+      if ("Notification" in window && Notification.permission === "default") {
+        const permission = await Notification.requestPermission();
+        if (permission !== "granted") {
+          showNotification(
+            "error",
+            "Notification permission denied. You can enable it later in browser settings."
+          );
+          return false;
+        }
+      }
+
+      const userInterest = `user-${userId}`;
+      await client.addDeviceInterest(userInterest);
+      console.log(`Subscribed to interest: ${userInterest}`);
+      return true;
+    } catch (error) {
+      console.error("Failed to enable notifications:", error);
+      showNotification("error", "Failed to enable notifications");
+      return false;
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -55,14 +139,20 @@ export default function LoginPage() {
 
       const data = response.data;
 
-      // Save token if provided
-      if (data.access_token) {
-        localStorage.setItem("token", data.access_token);
-      }
-
-      showNotification("success", "Login successful! Redirecting...");
+      showNotification(
+        "success",
+        "Login successful! Setting up notifications..."
+      );
 
       if (data.userId) {
+        const notificationsEnabled = await enableNotifications(data.userId);
+        if (notificationsEnabled) {
+          showNotification(
+            "success",
+            "Push notifications enabled! Redirecting..."
+          );
+        }
+
         setTimeout(() => router.push(`/Dashboard/${data.userId}`), 2000);
       } else {
         setTimeout(() => router.push("/Dashboard"), 2000);

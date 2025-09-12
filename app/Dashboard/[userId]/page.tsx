@@ -15,6 +15,7 @@ export default function Dashboard({ params }: DashboardProps) {
   const [user, setUser] = useState<UserInfo | null>(null);
 
   useEffect(() => {
+    //console.log("Cookies:", document.cookie);
     async function fetchUser() {
       try {
         const response = await axios.get("http://localhost:8080/auth/me", {
