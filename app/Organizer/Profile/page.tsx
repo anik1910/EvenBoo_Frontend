@@ -9,7 +9,6 @@ interface UserInfo {
   fullname: string;
   email: string;
   phoneNumber: string;
-  image?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -199,61 +198,36 @@ export default function ProfilePage() {
 
         {userInfo && (
           <div className="bg-gray-800 rounded-lg shadow-xl p-6 mb-6">
-            <div className="flex flex-col lg:flex-row gap-6">
-              <div className="flex flex-col items-center lg:items-start">
-                <div className="w-32 h-32 bg-gray-700 rounded-full flex items-center justify-center mb-4 overflow-hidden">
-                  {userInfo.image ? (
-                    <img 
-                      src={
-                        userInfo.image.startsWith("http")
-                          ? userInfo.image
-                          : `http://localhost:8000/${userInfo.image.startsWith("uploads/") ? userInfo.image : "uploads/" + userInfo.image}`
-                      }
-                      alt="Profile" 
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="text-center">
-                      <svg className="w-16 h-16 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                      <span className="text-sm text-gray-400">No image</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex-1 space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-gray-700 p-4 rounded-lg">
-                    <label className="block text-sm font-medium text-gray-300 mb-1">Full Name</label>
-                    <p className="text-white text-lg">{userInfo.fullname}</p>
-                  </div>
-                  
-                  <div className="bg-gray-700 p-4 rounded-lg">
-                    <label className="block text-sm font-medium text-gray-300 mb-1">Email</label>
-                    <p className="text-white text-lg">{userInfo.email}</p>
-                  </div>
-                  
-                  <div className="bg-gray-700 p-4 rounded-lg">
-                    <label className="block text-sm font-medium text-gray-300 mb-1">Phone Number</label>
-                    <p className="text-white text-lg">{userInfo.phoneNumber}</p>
-                  </div>
-                  
-                  <div className="bg-gray-700 p-4 rounded-lg">
-                    <label className="block text-sm font-medium text-gray-300 mb-1">Registration Date</label>
-                    <p className="text-white text-lg">
-                      {userInfo.createdAt ? new Date(userInfo.createdAt).toLocaleDateString() : "N/A"}
-                    </p>
-                  </div>
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-gray-700 p-4 rounded-lg">
+                  <label className="block text-sm font-medium text-gray-300 mb-1">Full Name</label>
+                  <p className="text-white text-lg">{userInfo.fullname}</p>
                 </div>
                 
                 <div className="bg-gray-700 p-4 rounded-lg">
-                  <label className="block text-sm font-medium text-gray-300 mb-1">Last Updated</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-1">Email</label>
+                  <p className="text-white text-lg">{userInfo.email}</p>
+                </div>
+                
+                <div className="bg-gray-700 p-4 rounded-lg">
+                  <label className="block text-sm font-medium text-gray-300 mb-1">Phone Number</label>
+                  <p className="text-white text-lg">{userInfo.phoneNumber}</p>
+                </div>
+                
+                <div className="bg-gray-700 p-4 rounded-lg">
+                  <label className="block text-sm font-medium text-gray-300 mb-1">Registration Date</label>
                   <p className="text-white text-lg">
-                    {userInfo.updatedAt ? new Date(userInfo.updatedAt).toLocaleDateString() : "N/A"}
+                    {userInfo.createdAt ? new Date(userInfo.createdAt).toLocaleDateString() : "N/A"}
                   </p>
                 </div>
+              </div>
+              
+              <div className="bg-gray-700 p-4 rounded-lg">
+                <label className="block text-sm font-medium text-gray-300 mb-1">Last Updated</label>
+                <p className="text-white text-lg">
+                  {userInfo.updatedAt ? new Date(userInfo.updatedAt).toLocaleDateString() : "N/A"}
+                </p>
               </div>
             </div>
           </div>
